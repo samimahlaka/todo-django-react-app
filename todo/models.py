@@ -1,7 +1,7 @@
 from django.db import models
 class Todo (models.Model):
     title = models.CharField(max_length=60)
-    discription = models.TextField()
+    description = models.TextField()
     completed = models.BooleanField(default='false')
 
     def __str__(self):
