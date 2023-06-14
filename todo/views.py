@@ -23,6 +23,19 @@ def todoDetail(request,pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['POST'])
+def todoCreate(request):
+    serializer = TodoSerializer(data = request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({'message': 'Todo created successfully'},status=status.HTTP_201_CREATED)
+
+    return Response({'message': "Todo can't be created"},status= status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
 
 
