@@ -49,6 +49,16 @@ def todoUpdate(request, pk):
         Todo.DoesNotExist
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
 
+@api_view(['DELETE'])
+def todoDelete(request, pk):
+    try:
+        todo = Todo.objects.get(id=pk)
+        todo.delete()
+        return Response({'message': 'Todo deleted successfully'}, status= status. HTTP_200_OK)
+    except Todo.DoesNotExist:
+        return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+
+
 
 
 
