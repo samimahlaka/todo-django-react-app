@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-xp_)$c2x_a8d!ha2@=$)g(j^&r#x2@c_$hgr$26^@(mq%7jr_@
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+AUTHENTICATION_BACKEND = ['django.contrib.auth.backends.ModelBackend']
 
 # Application definition
 

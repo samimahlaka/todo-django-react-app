@@ -4,6 +4,10 @@ from .serializers import TodoSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from django.contrib.auth import  authenticate ,login
+from django.shortcuts import render, redirect
+
+
 
 # Create your views here.
 @api_view(['GET'])
@@ -57,6 +61,28 @@ def todoDelete(request, pk):
         return Response({'message': 'Todo deleted successfully'}, status= status. HTTP_200_OK)
     except Todo.DoesNotExist:
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST', 'GET'])
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            return redirect('todos/')
+        else:
+            error_message = 'Invalid username or password'
+            return render(request, 'todo/login.html', {'error_message': error_message})
+    else:
+        return render(request, 'todo/login.html')
+
+    # @api_view(['POST', 'GET'])
+    # def register_view(request):
+    #     if request.method=='POST':
+
+
 
 
 
