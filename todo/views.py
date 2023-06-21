@@ -4,8 +4,12 @@ from .serializers import TodoSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from django.contrib.auth import  authenticate ,login
+from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
+from .forms import RegistrationForm
+from django.contrib import messages
+
+
 
 
 
@@ -27,7 +31,10 @@ def todoDetail(request,pk):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+
+
 @api_view(['POST'])
+
 def todoCreate(request):
     serializer = TodoSerializer(data = request.data)
     if serializer.is_valid():
@@ -71,16 +78,34 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
-            return redirect('todos/')
+            return redirect('todoList')
         else:
-            error_message = 'Invalid username or password'
-            return render(request, 'todo/login.html', {'error_message': error_message})
+            messages.error(request, 'Invalid username or password')
+            return redirect('login')
+
     else:
         return render(request, 'todo/login.html')
 
-    # @api_view(['POST', 'GET'])
-    # def register_view(request):
-    #     if request.method=='POST':
+@api_view(['POST', 'GET'])
+def register_view(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            messages.success(request, 'Your account has been created, You are now able to login')
+            return redirect('login')
+        else:
+            messages.error(request, 'invalid data , pls re-enter the data')
+            return redirect('register')
+    else:
+        form = RegistrationForm()
+        return render(request, 'todo/registration.html', {'form': form})
+
+
+
 
 
 

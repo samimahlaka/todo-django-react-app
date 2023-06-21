@@ -9,15 +9,29 @@
         <title>Login</title>
     </head>
         <body>
+
+            {% if messages %}
+                <ul class = 'messages'>
+                    {%for message in messages%}
+                        <li>
+                            {% if message.tags %}
+                                {{message.tag}}
+                            {% endif%}
+                            {{message}}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            {% endif %}
             <form method="POST" action="{% url 'login' %}">
                 {% csrf_token %}
                 <label for= 'username'>Username:</label>
-                <input type="text" name=" username" id = 'username'>
+                <input type="text" name="username" id ='username'>
 
                 <label for= 'password'>Password:</label>
-                <input type="password" name=" password" id = 'password'>
+                <input type="password" name="password" id ='password'>
 
-                <button type = 'submit' value=" login"> Submit </button>
+                <button type ='submit' value="login"> Submit </button>
             </form>
         </body>
 </html>

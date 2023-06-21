@@ -18,12 +18,13 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 from rest_framework import routers
-from todo.views import todoList , todoDetail , todoCreate, todoUpdate,todoDelete,login_view
+from todo.views import todoList , todoDetail , todoCreate, todoUpdate,todoDelete,login_view,register_view
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/',login_view, name='login'),
+    path('register/', register_view, name='register'),
+    path('login/', login_view, name='login'),
     path('todos/', todoList, name='todoList'),
     path('todos/<int:pk>/', todoDetail, name='todoDetail'),
     path('todos/create/', todoCreate, name='todoCreate'),
