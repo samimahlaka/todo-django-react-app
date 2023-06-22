@@ -1,28 +1,29 @@
-from django.shortcuts import render
 from .models import Todo
 from .serializers import TodoSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from django.contrib.auth import authenticate, login
+from .backends import CustomBackendAuthentication
+from django.contrib.auth import login, logout, authenticate
 from django.shortcuts import render, redirect
 from .forms import RegistrationForm
 from django.contrib import messages
-
+from django.contrib.auth.decorators import login_required
 
 
 
 
 # Create your views here.
+@login_required
 @api_view(['GET'])
 def todoList(request):
     todos = Todo.objects.all()
     serializer= TodoSerializer(todos, many=True)
     return Response(serializer.data)
 
+@login_required
 @api_view(['GET'])
 def todoDetail(request,pk):
-
     try:
         todo=Todo.objects.get(id=pk)
         serializer = TodoSerializer(todo)
@@ -32,9 +33,8 @@ def todoDetail(request,pk):
 
 
 
-
+@login_required
 @api_view(['POST'])
-
 def todoCreate(request):
     serializer = TodoSerializer(data = request.data)
     if serializer.is_valid():
@@ -45,6 +45,7 @@ def todoCreate(request):
 
 
 
+@login_required
 @api_view(['PUT'])
 def todoUpdate(request, pk):
     try:
@@ -60,6 +61,7 @@ def todoUpdate(request, pk):
         Todo.DoesNotExist
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
 
+@login_required
 @api_view(['DELETE'])
 def todoDelete(request, pk):
     try:
@@ -68,6 +70,7 @@ def todoDelete(request, pk):
         return Response({'message': 'Todo deleted successfully'}, status= status. HTTP_200_OK)
     except Todo.DoesNotExist:
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 @api_view(['POST', 'GET'])
@@ -86,6 +89,7 @@ def login_view(request):
     else:
         return render(request, 'todo/login.html')
 
+
 @api_view(['POST', 'GET'])
 def register_view(request):
     if request.method == 'POST':
@@ -103,6 +107,14 @@ def register_view(request):
     else:
         form = RegistrationForm()
         return render(request, 'todo/registration.html', {'form': form})
+
+@login_required
+def logout_view(request):
+    logout(request)
+    messages.info(request, 'are you sure you want to log out?')
+    return render(request, 'todo/logout.html')
+
+
 
 
 
