@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 @login_required
 @api_view(['GET'])
 def todoList(request):
-    todos = Todo.objects.all()
+    todos = Todo.objects.filter(user=request.user)
     serializer= TodoSerializer(todos, many=True)
     return Response(serializer.data)
 
@@ -26,22 +26,23 @@ def todoList(request):
 def todoDetail(request,pk):
     try:
         todo=Todo.objects.get(id=pk)
-        serializer = TodoSerializer(todo)
-        return Response(serializer.data)
+        if todo.user == request.user:
+            serializer = TodoSerializer(todo)
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
     except Todo.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
-
 
 
 @login_required
 @api_view(['POST'])
 def todoCreate(request):
-    serializer = TodoSerializer(data = request.data)
+    serializer = TodoSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        return Response({'message': 'Todo created successfully'},status=status.HTTP_201_CREATED)
-
-    return Response({'message': "Todo can't be created"},status= status.HTTP_400_BAD_REQUEST)
+        serializer.save(user=request.user)
+        return Response({'message': 'Todo created successfully'}, status=status.HTTP_201_CREATED)
+    return Response({'message': "Todo can't be created"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -50,13 +51,15 @@ def todoCreate(request):
 def todoUpdate(request, pk):
     try:
         todo = Todo.objects.get(id=pk)
-        serializer = TodoSerializer(todo, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Todo updated successfully'}, status= status. HTTP_200_OK)
+        if todo.user == request.user:
+            serializer = TodoSerializer(todo, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': 'Todo updated successfully'}, status= status. HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
     except:
         Todo.DoesNotExist
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
@@ -66,8 +69,11 @@ def todoUpdate(request, pk):
 def todoDelete(request, pk):
     try:
         todo = Todo.objects.get(id=pk)
-        todo.delete()
-        return Response({'message': 'Todo deleted successfully'}, status= status. HTTP_200_OK)
+        if todo.user == request.user:
+            todo.delete()
+            return Response({'message': 'Todo deleted successfully'}, status= status. HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
     except Todo.DoesNotExist:
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -85,7 +91,6 @@ def login_view(request):
         else:
             messages.error(request, 'Invalid username or password')
             return redirect('login')
-
     else:
         return render(request, 'todo/login.html')
 
