@@ -10,7 +10,7 @@ from .forms import RegistrationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-
+import requests
 
 
 # Create your views here.
@@ -18,14 +18,15 @@ from django.contrib.auth.decorators import login_required
 @api_view(['GET'])
 def todoList(request):
     todos = Todo.objects.filter(user=request.user)
-    serializer= TodoSerializer(todos, many=True)
+    serializer = TodoSerializer(todos, many=True)
     return Response(serializer.data)
+
 
 @login_required
 @api_view(['GET'])
-def todoDetail(request,pk):
+def todoDetail(request, pk):
     try:
-        todo=Todo.objects.get(id=pk)
+        todo = Todo.objects.get(id=pk)
         if todo.user == request.user:
             serializer = TodoSerializer(todo)
             return Response(serializer.data)
@@ -45,7 +46,6 @@ def todoCreate(request):
     return Response({'message': "Todo can't be created"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 @login_required
 @api_view(['PUT'])
 def todoUpdate(request, pk):
@@ -55,7 +55,7 @@ def todoUpdate(request, pk):
             serializer = TodoSerializer(todo, data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'Todo updated successfully'}, status= status. HTTP_200_OK)
+                return Response({'message': 'Todo updated successfully'}, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
@@ -64,6 +64,7 @@ def todoUpdate(request, pk):
         Todo.DoesNotExist
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
 
+
 @login_required
 @api_view(['DELETE'])
 def todoDelete(request, pk):
@@ -71,12 +72,11 @@ def todoDelete(request, pk):
         todo = Todo.objects.get(id=pk)
         if todo.user == request.user:
             todo.delete()
-            return Response({'message': 'Todo deleted successfully'}, status= status. HTTP_200_OK)
+            return Response({'message': 'Todo deleted successfully'}, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
     except Todo.DoesNotExist:
         return Response({'message': "Todo doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
-
 
 
 @api_view(['POST', 'GET'])
@@ -113,6 +113,7 @@ def register_view(request):
         form = RegistrationForm()
         return render(request, 'todo/registration.html', {'form': form})
 
+
 @login_required
 def logout_view(request):
     logout(request)
@@ -120,15 +121,25 @@ def logout_view(request):
     return render(request, 'todo/logout.html')
 
 
+def weather_view(request):
+    if request.method == 'POST':
+        city = request.POST.get('city')
+        api_key = "6536d221963b109d4f32fc8b00a15232"
+        weather = get_weather(api_key, city)
+        print(f"Weather API response: {weather}")
+        if weather:
+            return render(request, 'todo/weather.html', {'weather': weather})
+        else:
+            messages.error(request, 'Invalid input , pls re-enter the name of city')
+            return redirect('weather')
+
+    return render(request, 'todo/weather_form.html')
 
 
-
-
-
-
-
-
-
-
-
-
+def get_weather(api_key, city):
+    url = f'https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        weather = response.json()
+        return weather
+    return None

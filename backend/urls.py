@@ -18,7 +18,7 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 from rest_framework import routers
-from todo.views import todoList , todoDetail , todoCreate, todoUpdate,todoDelete,login_view,register_view, logout_view
+from todo.views import todoList , todoDetail , todoCreate, todoUpdate,todoDelete,login_view,register_view, logout_view, weather_view
 
 
 urlpatterns = [
@@ -30,5 +30,7 @@ urlpatterns = [
     path('todos/<int:pk>/', todoDetail, name='todoDetail'),
     path('todos/create/', todoCreate, name='todoCreate'),
     path('todos/update/<int:pk>/', todoUpdate, name='todoUpdate'),
-    path('todos/delete/<int:pk>/', todoDelete, name='todoDelete')
+    path('todos/delete/<int:pk>/', todoDelete, name='todoDelete'),
+    path('weather/', weather_view, name='weather')
+
 ]
