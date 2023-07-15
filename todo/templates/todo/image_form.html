@@ -1,0 +1,23 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>image_form</title>
+</head>
+<body>
+
+        {%if messages%}
+            {% for message in messages%}
+                {{message}}
+            {% endfor %}
+        {% endif %}
+        <form method="POST" action="{% url 'image' %}">
+            {% csrf_token %}
+            <label for = 'image_request'> Search </label>
+            <input type="text" name = 'query' id = 'image_request'>
+            <button type="submit" value="image"> Submit </button>
+        </form>
+</body>
+</html>

@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from .forms import RegistrationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from backend.settings import Unspalsh_Access_key
 
 import requests
 
@@ -121,6 +122,7 @@ def logout_view(request):
     return render(request, 'todo/logout.html')
 
 
+
 def weather_view(request):
     if request.method == 'POST':
         city = request.POST.get('city')
@@ -143,3 +145,32 @@ def get_weather(api_key, city):
         weather = response.json()
         return weather
     return None
+def image_view(request):
+    if request.method == 'POST':
+        api_key = 'U8NFgGb8ZN2eE4kqnC-tazMxUpbe6hYEyMtI3CdPRH0'
+        query = request.POST.get('query')
+        print(f"its image_request------> {query}")
+        images = get_image(api_key, query)
+        if images:
+            return render(request, 'todo/image.html', {'images': images})
+        else:
+            messages.error(request,'No image found, please search again')
+            return render(request, 'todo/image_form.html')
+
+    return render(request,'todo/image_form.html')
+
+def get_image(api_key , query):
+    url = f'https://api.unsplash.com/search/photos?query={query}&client_id={api_key}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        image = response.json()
+        image_url = image["results"][1]["urls"]["regular"]
+        return image_url
+    else:
+        return None
+
+
+
+
+
+

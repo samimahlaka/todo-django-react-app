@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,3 +133,5 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 LOGIN_URL = 'login'
+
+Unspalsh_Access_key = os.environ.get('Unsplash_Access_key')
